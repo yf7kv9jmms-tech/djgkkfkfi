@@ -1,11 +1,22 @@
-<!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="0; url=html5_build/index.html">
-    <title>Redirecting...</title>
 </head>
 <body>
-    <p>Redirecting to game...</p>
-    <a href="html5_build/index.html">Click here if not redirected</a>
+    <button onclick="openGame()">Open Game</button>
+    <script>
+        function openGame() {
+            var win = window.open();
+            var url = "html5_build/index.html";
+            var iframe = win.document.createElement("iframe");
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.border = "none";
+            iframe.src = url;
+            win.document.body.style.margin = "0";
+            win.document.body.style.padding = "0";
+            win.document.body.style.overflow = "hidden";
+            win.document.body.appendChild(iframe);
+        }
+    </script>
 </body>
 </html>
