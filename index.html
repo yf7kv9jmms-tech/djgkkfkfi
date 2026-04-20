@@ -2,9 +2,11 @@
 <head>
 </head>
 <body>
-    <button onclick="openGame()">Open FNF</button>
+    <button onclick="openFNF()">Open FNF</button>
+    <button onclick="openDusttale()">Open Dusttale</button>
+    
     <script>
-        function openGame() {
+        function openFNF() {
             var win = window.open();
             var url = "html5_build/index.html";
             var iframe = win.document.createElement("iframe");
@@ -16,9 +18,9 @@
             win.document.body.style.padding = "0";
             win.document.body.style.overflow = "hidden";
             win.document.body.appendChild(iframe);
-    <button onclick="openGame()">Open Dusttale</button>
-    <script>
-        function openGame() {
+        }
+
+        function openDusttale() {
             var win = window.open();
             var url = "https://yf7kv9jmms-tech.github.io/kvifivivibioeowpd/";
             var iframe = win.document.createElement("iframe");
