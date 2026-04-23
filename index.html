@@ -10,6 +10,7 @@
     <button onclick="openDusttale()">Open Dusttale</button>
     <button onclick="openFNAE()">Open FNAE</button>
     <button onclick="openAgoti()">Open Agoti</button>
+    <button onclick="openFNAFS()">Open FNAFS</button>
     
     <script>
         function openFNF() {
@@ -73,6 +74,24 @@
                 return;
             }
             var url = "https://yf7kv9jmms-tech.github.io/agoti/";
+            var iframe = win.document.createElement("iframe");
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.border = "none";
+            iframe.src = url;
+            win.document.body.style.margin = "0";
+            win.document.body.style.padding = "0";
+            win.document.body.style.overflow = "hidden";
+            win.document.body.appendChild(iframe);
+        }
+
+        function openFNAFS() {
+            var win = window.open();
+            if (!win) {
+                alert("Popup blocked! Please allow popups for this site.");
+                return;
+            }
+            var url = "https://yf7kv9jmms-tech.github.io/fnaf/";
             var iframe = win.document.createElement("iframe");
             iframe.style.width = "100%";
             iframe.style.height = "100%";
