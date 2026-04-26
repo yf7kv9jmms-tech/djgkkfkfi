@@ -3,359 +3,301 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Game Launcher</title>
+  <title>TERMINAL://GAMES_LAUNCHER</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
     :root {
-      --bg1: #0b1020;
-      --bg2: #141a31;
-      --bg3: #1f1740;
-      --text: #f2f5ff;
-      --muted: #b8c1e3;
-      --card: rgba(255, 255, 255, 0.08);
-      --card-border: rgba(255, 255, 255, 0.14);
-      --btn1: #6aa9ff;
-      --btn2: #8b6dff;
-      --btn3: #4ddac6;
-      --shadow: 0 20px 45px rgba(0, 0, 0, 0.38);
-      --radius: 18px;
+      --glow-green: #00ff41;
+      --dark-green: #003b00;
+      --bg-black: #050505;
+      --terminal-font: 'Fira Code', monospace;
     }
 
     * {
       box-sizing: border-box;
+      cursor: crosshair;
     }
 
     html, body {
       margin: 0;
-      min-height: 100%;
-      font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
-      color: var(--text);
-      overflow-x: hidden;
-    }
-
-    body {
-      background:
-        radial-gradient(1000px 700px at 10% 15%, rgba(106, 169, 255, 0.18), transparent 60%),
-        radial-gradient(900px 600px at 90% 0%, rgba(139, 109, 255, 0.2), transparent 60%),
-        linear-gradient(145deg, var(--bg1), var(--bg2) 45%, var(--bg3));
-      animation: bgShift 16s ease-in-out infinite alternate;
-      display: grid;
-      place-items: center;
-      padding: 22px;
-    }
-
-    @keyframes bgShift {
-      0% {
-        filter: hue-rotate(0deg);
-      }
-      100% {
-        filter: hue-rotate(18deg);
-      }
-    }
-
-    .orbs {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
+      height: 100%;
+      background-color: var(--bg-black);
+      color: var(--glow-green);
+      font-family: var(--terminal-font);
       overflow: hidden;
     }
 
-    .orb {
+    /* --- MATRIX BACKGROUND --- */
+    #matrix-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      opacity: 0.15;
+    }
+
+    /* --- CRT SCANLINE EFFECT --- */
+    body::before {
+      content: " ";
+      display: block;
       position: absolute;
-      width: 280px;
-      height: 280px;
-      border-radius: 50%;
-      filter: blur(45px);
-      opacity: 0.25;
-      animation: float 15s ease-in-out infinite;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      z-index: 100;
+      background-size: 100% 4px, 3px 100%;
+      pointer-events: none;
     }
 
-    .orb.one {
-      background: #58a6ff;
-      top: -60px;
-      left: -80px;
+    /* --- OPENING ANIMATION OVERLAY --- */
+    #boot-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-black);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
     }
 
-    .orb.two {
-      background: #9b7bff;
-      right: -70px;
-      top: 10%;
-      animation-delay: -4s;
+    .boot-text {
+      width: 100%;
+      max-width: 600px;
+      font-size: 1.2rem;
+      line-height: 1.6;
+      text-shadow: 0 0 5px var(--glow-green);
     }
 
-    .orb.three {
-      background: #4ddac6;
-      bottom: -90px;
-      left: 20%;
-      animation-delay: -8s;
-    }
-
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0) translateX(0) scale(1);
-      }
-      50% {
-        transform: translateY(-24px) translateX(18px) scale(1.07);
-      }
-    }
-
-    .app {
+    /* --- MAIN APP CONTAINER --- */
+    .app-container {
       position: relative;
-      z-index: 1;
-      width: min(980px, 100%);
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 26px;
-      transform: translateY(14px);
-      opacity: 0;
-      animation: appIn 700ms cubic-bezier(.2, .85, .2, 1) forwards;
+      z-index: 10;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0; /* Hidden initially for the animation */
+      transition: opacity 1s ease-in;
     }
 
-    @keyframes appIn {
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+    .terminal-window {
+      width: min(900px, 95vw);
+      background: rgba(0, 20, 0, 0.85);
+      border: 2px solid var(--glow-green);
+      box-shadow: 0 0 20px var(--dark-green), inset 0 0 10px var(--dark-green);
+      padding: 30px;
+      position: relative;
+    }
+
+    .header {
+      border-bottom: 2px solid var(--glow-green);
+      margin-bottom: 30px;
+      padding-bottom: 10px;
     }
 
     .title {
+      font-size: 2rem;
+      text-transform: uppercase;
       margin: 0;
-      font-size: clamp(1.8rem, 2.6vw, 2.5rem);
-      letter-spacing: 0.3px;
-    }
-
-    .subtitle {
-      margin: 8px 0 22px;
-      color: var(--muted);
-      font-size: 0.98rem;
+      letter-spacing: 4px;
+      animation: flicker 2s infinite;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
     }
 
-    .game-btn {
+    /* --- HACKER BUTTONS --- */
+    .node-btn {
+      background: transparent;
+      border: 1px solid var(--glow-green);
+      color: var(--glow-green);
+      padding: 15px;
+      font-family: var(--terminal-font);
+      font-weight: bold;
+      text-transform: uppercase;
       position: relative;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 14px;
-      padding: 13px 14px;
-      color: var(--text);
-      background: linear-gradient(
-        135deg,
-        rgba(106, 169, 255, 0.23),
-        rgba(139, 109, 255, 0.23) 55%,
-        rgba(77, 218, 198, 0.18)
-      );
-      font-size: 0.96rem;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-      cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.22s ease, border-color 0.22s ease, filter 0.22s ease;
-      animation: btnIn 650ms cubic-bezier(.2, .85, .2, 1) both;
+      overflow: hidden;
+      transition: all 0.2s ease;
     }
 
-    .game-btn::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transform: translateX(-120%);
-      transition: transform 0.55s ease;
-      pointer-events: none;
+    .node-btn:hover {
+      background: var(--glow-green);
+      color: var(--bg-black);
+      box-shadow: 0 0 15px var(--glow-green);
+      transform: scale(1.05);
     }
 
-    .game-btn:hover {
-      transform: translateY(-3px) scale(1.015);
-      border-color: rgba(255, 255, 255, 0.36);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
-      filter: brightness(1.06);
+    .node-btn::before {
+      content: "[ ";
+    }
+    .node-btn::after {
+      content: " ]";
     }
 
-    .game-btn:hover::after {
-      transform: translateX(120%);
+    /* --- ANIMATIONS --- */
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 24%, 55% { opacity: 0.4; }
     }
 
-    .game-btn:active {
-      transform: translateY(0) scale(0.995);
+    .hidden { display: none; }
+
+    /* Decryption progress bar */
+    .progress-box {
+      width: 100%;
+      height: 20px;
+      border: 1px solid var(--glow-green);
+      margin-top: 20px;
+      position: relative;
     }
-
-    .game-btn:nth-child(1) { animation-delay: 0.06s; }
-    .game-btn:nth-child(2) { animation-delay: 0.12s; }
-    .game-btn:nth-child(3) { animation-delay: 0.18s; }
-    .game-btn:nth-child(4) { animation-delay: 0.24s; }
-    .game-btn:nth-child(5) { animation-delay: 0.30s; }
-    .game-btn:nth-child(6) { animation-delay: 0.36s; }
-    .game-btn:nth-child(7) { animation-delay: 0.42s; }
-    .game-btn:nth-child(8) { animation-delay: 0.48s; }
-
-    @keyframes btnIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .footer {
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 0.84rem;
-      opacity: 0.95;
-    }
-
-    /* Optional click ripple */
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      transform: scale(0);
-      animation: ripple 550ms linear;
-      background: rgba(255, 255, 255, 0.35);
-      pointer-events: none;
-    }
-
-    @keyframes ripple {
-      to {
-        transform: scale(3.3);
-        opacity: 0;
-      }
+    #progress-bar {
+      height: 100%;
+      background: var(--glow-green);
+      width: 0%;
+      transition: width 0.1s linear;
     }
   </style>
 </head>
 <body>
-  <div class="orbs" aria-hidden="true">
-    <div class="orb one"></div>
-    <div class="orb two"></div>
-    <div class="orb three"></div>
+
+  <canvas id="matrix-canvas"></canvas>
+
+  <!-- BOOT SEQUENCE -->
+  <div id="boot-overlay">
+    <div class="boot-text" id="typewriter"></div>
+    <div class="progress-box">
+      <div id="progress-bar"></div>
+    </div>
   </div>
 
-  <main class="app">
-    <h1 class="title">Game Launcher</h1>
-    <p class="subtitle">Pick a game and it opens in a popup iframe window.</p>
+  <!-- MAIN INTERFACE -->
+  <main class="app-container" id="main-ui">
+    <div class="terminal-window">
+      <div class="header">
+        <h1 class="title">> SYSTEM OVERRIDE: ACTIVE</h1>
+        <p style="font-size: 0.8rem;">SECURE CONNECTION ESTABLISHED // PORT: 8080</p>
+      </div>
 
-    <section class="grid">
-      <button class="game-btn" onclick="openFNF(event)">Open FNF</button>
-      <button class="game-btn" onclick="openDusttale(event)">Open Dusttale</button>
-      <button class="game-btn" onclick="openFNAE(event)">Open FNAE</button>
-      <button class="game-btn" onclick="openAgoti(event)">Open Agoti</button>
-      <button class="game-btn" onclick="openFNAFS(event)">Open FNAFS</button>
-      <button class="game-btn" onclick="openMIAMI(event)">Open Hotline Miami</button>
-      <button class="game-btn" onclick="openBILLY(event)">Open Silly Billy</button>
-      <button class="game-btn" onclick="openEAGLER(event)">Open Eaglercraft</button>
-    </section>
+      <section class="grid">
+        <button class="node-btn" onclick="openGame('FNF', 'html5_build/index.html')">Initialize_FNF</button>
+        <button class="node-btn" onclick="openGame('Dusttale', 'https://yf7kv9jmms-tech.github.io/kvifivivibioeowpd/')">Load_Dusttale</button>
+        <button class="node-btn" onclick="openGame('FNAE', 'https://yf7kv9jmms-tech.github.io/lfjkvivospelfo/')">Bypass_FNAE</button>
+        <button class="node-btn" onclick="openGame('Agoti', 'https://yf7kv9jmms-tech.github.io/agoti/')">Inject_Agoti</button>
+        <button class="node-btn" onclick="openGame('FNAFS', 'https://yf7kv9jmms-tech.github.io/fnaf/')">Access_FNAFS</button>
+        <button class="node-btn" onclick="openGame('Hotline Miami', 'https://yf7kv9jmms-tech.github.io/miami/hotline-miami/index.html')">Miami_Node</button>
+        <button class="node-btn" onclick="openGame('Silly Billy', 'https://yf7kv9jmms-tech.github.io/silly-billy/')">Billy_Crack</button>
+        <button class="node-btn" onclick="openGame('Eaglercraft', 'https://yf7kv9jmms-tech.github.io/eagler/')">Eagler_Shell</button>
+      </section>
 
-    <p class="footer">If nothing opens, allow popups for this site.</p>
+      <div style="margin-top: 20px; font-size: 0.7rem; opacity: 0.6;">
+        [WARNING] ENSURE POPUP PERMISSIONS ARE GRANTED TO PREVENT LINK BREAKAGE.
+      </div>
+    </div>
   </main>
 
   <script>
-    // Keep same popup + iframe opening method, now with a loading screen + fade in.
-    function openInIframe(url) {
-      var win = window.open();
+    /* --- MATRIX RAIN SCRIPT --- */
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0F0';
+      ctx.font = fontSize + 'px monospace';
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 35);
+
+    /* --- BOOT SEQUENCE LOGIC --- */
+    const bootLines = [
+      "> INITIALIZING KERNEL BOOT...",
+      "> DECRYPTING VOLUMES...",
+      "> BYPASSING SECURITY PROTOCOLS...",
+      "> HIJACKING PACKET STREAM...",
+      "> ACCESS GRANTED: WELCOME, ADMIN."
+    ];
+
+    const typewriter = document.getElementById('typewriter');
+    const progressBar = document.getElementById('progress-bar');
+    let lineIndex = 0;
+
+    function runBoot() {
+      if (lineIndex < bootLines.length) {
+        let p = document.createElement('p');
+        p.textContent = bootLines[lineIndex];
+        typewriter.appendChild(p);
+        lineIndex++;
+        
+        let progress = (lineIndex / bootLines.length) * 100;
+        progressBar.style.width = progress + "%";
+
+        setTimeout(runBoot, 600);
+      } else {
+        setTimeout(() => {
+          document.getElementById('boot-overlay').style.display = 'none';
+          document.getElementById('main-ui').style.opacity = '1';
+        }, 800);
+      }
+    }
+    window.onload = runBoot;
+
+    /* --- CORE FUNCTIONALITY --- */
+    function openGame(name, url) {
+      const win = window.open("about:blank", "_blank");
       if (!win) {
-        alert("Popup blocked! Please allow popups for this site.");
+        alert("ACCESS DENIED: ALLOW POPUPS FOR PROTOCOL INITIATION.");
         return;
       }
 
-      // Build popup shell
-      win.document.open();
-      win.document.write(
-        "<!DOCTYPE html><html><head><title>Loading...</title><meta charset='UTF-8'>" +
-        "<style>" +
-        "html,body{margin:0;height:100%;background:#0d1020;color:#f3f6ff;font-family:Segoe UI,Arial,sans-serif;overflow:hidden;}" +
-        ".loader-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;" +
-        "background:radial-gradient(circle at 30% 20%,#23356b,transparent 55%),linear-gradient(145deg,#0b1020,#1a2140);" +
-        "transition:opacity .45s ease;z-index:10;}" +
-        ".spinner{width:54px;height:54px;border:4px solid rgba(255,255,255,.2);border-top-color:#7cb0ff;border-radius:50%;animation:spin .9s linear infinite;}" +
-        ".txt{opacity:.92;font-size:14px;letter-spacing:.3px;}" +
-        "@keyframes spin{to{transform:rotate(360deg)}}" +
-        "iframe{width:100%;height:100%;border:none;opacity:0;transition:opacity .35s ease;}" +
-        "</style></head><body>" +
-        "<div id='loader' class='loader-wrap'><div class='spinner'></div><div class='txt'>Loading game...</div></div>" +
-        "</body></html>"
-      );
-      win.document.close();
-
-      var iframe = win.document.createElement("iframe");
-      iframe.src = url;
-
-      iframe.onload = function () {
-        var loader = win.document.getElementById("loader");
-        if (loader) {
-          loader.style.opacity = "0";
-          setTimeout(function () {
-            if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-          }, 460);
-        }
-        iframe.style.opacity = "1";
-      };
-
-      win.document.body.style.margin = "0";
-      win.document.body.style.padding = "0";
-      win.document.body.style.overflow = "hidden";
-      win.document.body.appendChild(iframe);
-    }
-
-    function addRipple(event) {
-      if (!event || !event.currentTarget) return;
-      var btn = event.currentTarget;
-      var rect = btn.getBoundingClientRect();
-      var size = Math.max(rect.width, rect.height);
-      var circle = document.createElement("span");
-      circle.className = "ripple";
-      circle.style.width = circle.style.height = size + "px";
-      circle.style.left = event.clientX - rect.left - size / 2 + "px";
-      circle.style.top = event.clientY - rect.top - size / 2 + "px";
-      btn.appendChild(circle);
-      setTimeout(function () { circle.remove(); }, 560);
-    }
-
-    function openFNF(e) {
-      addRipple(e);
-      openInIframe("html5_build/index.html");
-    }
-
-    function openDusttale(e) {
-      addRipple(e);
-      openInIframe("https://yf7kv9jmms-tech.github.io/kvifivivibioeowpd/");
-    }
-
-    function openFNAE(e) {
-      addRipple(e);
-      openInIframe("https://yf7kv9jmms-tech.github.io/lfjkvivospelfo/");
-    }
-
-    function openAgoti(e) {
-      addRipple(e);
-      openInIframe("https://yf7kv9jmms-tech.github.io/agoti/");
-    }
-
-    function openFNAFS(e) {
-      addRipple(e);
-      openInIframe("https://yf7kv9jmms-tech.github.io/fnaf/");
-    }
-
-    function openMIAMI(e) {
-      addRipple(e);
-      openInIframe("https://yf7kv9jmms-tech.github.io/miami/hotline-miami/index.html");
-    }
-
-    function openBILLY(e) {
-      addRipple(e);
-      openInIframe("https://yf7kv9jmms-tech.github.io/silly-billy/");
-    }
-
-    function openEAGLER(e) {
-      addRipple(e);
-      openInIframe("https://yf7kv9jmms-tech.github.io/eagler/");
+      // Hacker loading screen for the popup
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>ACCESSING://${name.toUpperCase()}</title>
+          <style>
+            body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+            .loader { border: 2px solid #0f0; padding: 20px; box-shadow: 0 0 10px #0f0; }
+            iframe { width: 100vw; height: 100vh; border: none; display: none; }
+            .glitch { animation: flash 0.1s infinite; }
+            @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+          </style>
+        </head>
+        <body>
+          <div id="loading" class="loader glitch">TUNNELING TO ${name.toUpperCase()}... PLEASE WAIT.</div>
+          <iframe id="game-frame" src="${url}"></iframe>
+          <script>
+            const frame = document.getElementById('game-frame');
+            frame.onload = () => {
+              document.getElementById('loading').style.display = 'none';
+              frame.style.display = 'block';
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
     }
   </script>
 </body>
