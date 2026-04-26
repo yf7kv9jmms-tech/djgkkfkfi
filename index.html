@@ -1,165 +1,362 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Launcher</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Launcher</title>
+  <style>
+    :root {
+      --bg1: #0b1020;
+      --bg2: #141a31;
+      --bg3: #1f1740;
+      --text: #f2f5ff;
+      --muted: #b8c1e3;
+      --card: rgba(255, 255, 255, 0.08);
+      --card-border: rgba(255, 255, 255, 0.14);
+      --btn1: #6aa9ff;
+      --btn2: #8b6dff;
+      --btn3: #4ddac6;
+      --shadow: 0 20px 45px rgba(0, 0, 0, 0.38);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    body {
+      background:
+        radial-gradient(1000px 700px at 10% 15%, rgba(106, 169, 255, 0.18), transparent 60%),
+        radial-gradient(900px 600px at 90% 0%, rgba(139, 109, 255, 0.2), transparent 60%),
+        linear-gradient(145deg, var(--bg1), var(--bg2) 45%, var(--bg3));
+      animation: bgShift 16s ease-in-out infinite alternate;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+    }
+
+    @keyframes bgShift {
+      0% {
+        filter: hue-rotate(0deg);
+      }
+      100% {
+        filter: hue-rotate(18deg);
+      }
+    }
+
+    .orbs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      filter: blur(45px);
+      opacity: 0.25;
+      animation: float 15s ease-in-out infinite;
+    }
+
+    .orb.one {
+      background: #58a6ff;
+      top: -60px;
+      left: -80px;
+    }
+
+    .orb.two {
+      background: #9b7bff;
+      right: -70px;
+      top: 10%;
+      animation-delay: -4s;
+    }
+
+    .orb.three {
+      background: #4ddac6;
+      bottom: -90px;
+      left: 20%;
+      animation-delay: -8s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) translateX(0) scale(1);
+      }
+      50% {
+        transform: translateY(-24px) translateX(18px) scale(1.07);
+      }
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(980px, 100%);
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 26px;
+      transform: translateY(14px);
+      opacity: 0;
+      animation: appIn 700ms cubic-bezier(.2, .85, .2, 1) forwards;
+    }
+
+    @keyframes appIn {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(1.8rem, 2.6vw, 2.5rem);
+      letter-spacing: 0.3px;
+    }
+
+    .subtitle {
+      margin: 8px 0 22px;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 12px;
+    }
+
+    .game-btn {
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 14px;
+      padding: 13px 14px;
+      color: var(--text);
+      background: linear-gradient(
+        135deg,
+        rgba(106, 169, 255, 0.23),
+        rgba(139, 109, 255, 0.23) 55%,
+        rgba(77, 218, 198, 0.18)
+      );
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.22s ease, border-color 0.22s ease, filter 0.22s ease;
+      animation: btnIn 650ms cubic-bezier(.2, .85, .2, 1) both;
+    }
+
+    .game-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: translateX(-120%);
+      transition: transform 0.55s ease;
+      pointer-events: none;
+    }
+
+    .game-btn:hover {
+      transform: translateY(-3px) scale(1.015);
+      border-color: rgba(255, 255, 255, 0.36);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
+      filter: brightness(1.06);
+    }
+
+    .game-btn:hover::after {
+      transform: translateX(120%);
+    }
+
+    .game-btn:active {
+      transform: translateY(0) scale(0.995);
+    }
+
+    .game-btn:nth-child(1) { animation-delay: 0.06s; }
+    .game-btn:nth-child(2) { animation-delay: 0.12s; }
+    .game-btn:nth-child(3) { animation-delay: 0.18s; }
+    .game-btn:nth-child(4) { animation-delay: 0.24s; }
+    .game-btn:nth-child(5) { animation-delay: 0.30s; }
+    .game-btn:nth-child(6) { animation-delay: 0.36s; }
+    .game-btn:nth-child(7) { animation-delay: 0.42s; }
+    .game-btn:nth-child(8) { animation-delay: 0.48s; }
+
+    @keyframes btnIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      opacity: 0.95;
+    }
+
+    /* Optional click ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 550ms linear;
+      background: rgba(255, 255, 255, 0.35);
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(3.3);
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-    <button onclick="openFNF()">Open FNF</button>
-    <button onclick="openDusttale()">Open Dusttale</button>
-    <button onclick="openFNAE()">Open FNAE</button>
-    <button onclick="openAgoti()">Open Agoti</button>
-    <button onclick="openFNAFS()">Open FNAFS</button>
-    <button onclick="openMIAMI()">Open Hotline Miami</button>
-    <button onclick="openBILLY()">Open Silly Billy</button>
-    <button onclick="openEAGLER()">Open Eaglercraft</button>
-    
-    <script>
-        function openFNF() {
-            var win = window.open();
-            if (!win) {
-                alert("Popup blocked! Please allow popups for this site.");
-                return;
-            }
-            var url = "html5_build/index.html";
-            var iframe = win.document.createElement("iframe");
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.src = url;
-            win.document.body.style.margin = "0";
-            win.document.body.style.padding = "0";
-            win.document.body.style.overflow = "hidden";
-            win.document.body.appendChild(iframe);
-        }
+  <div class="orbs" aria-hidden="true">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+  </div>
 
-        function openDusttale() {
-            var win = window.open();
-            if (!win) {
-                alert("Popup blocked! Please allow popups for this site.");
-                return;
-            }
-            var url = "https://yf7kv9jmms-tech.github.io/kvifivivibioeowpd/";
-            var iframe = win.document.createElement("iframe");
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.src = url;
-            win.document.body.style.margin = "0";
-            win.document.body.style.padding = "0";
-            win.document.body.style.overflow = "hidden";
-            win.document.body.appendChild(iframe);
-        }
+  <main class="app">
+    <h1 class="title">Game Launcher</h1>
+    <p class="subtitle">Pick a game and it opens in a popup iframe window.</p>
 
-        function openFNAE() {
-            var win = window.open();
-            if (!win) {
-                alert("Popup blocked! Please allow popups for this site.");
-                return;
-            }
-            var url = "https://yf7kv9jmms-tech.github.io/lfjkvivospelfo/";
-            var iframe = win.document.createElement("iframe");
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.src = url;
-            win.document.body.style.margin = "0";
-            win.document.body.style.padding = "0";
-            win.document.body.style.overflow = "hidden";
-            win.document.body.appendChild(iframe);
-        }
+    <section class="grid">
+      <button class="game-btn" onclick="openFNF(event)">Open FNF</button>
+      <button class="game-btn" onclick="openDusttale(event)">Open Dusttale</button>
+      <button class="game-btn" onclick="openFNAE(event)">Open FNAE</button>
+      <button class="game-btn" onclick="openAgoti(event)">Open Agoti</button>
+      <button class="game-btn" onclick="openFNAFS(event)">Open FNAFS</button>
+      <button class="game-btn" onclick="openMIAMI(event)">Open Hotline Miami</button>
+      <button class="game-btn" onclick="openBILLY(event)">Open Silly Billy</button>
+      <button class="game-btn" onclick="openEAGLER(event)">Open Eaglercraft</button>
+    </section>
 
-        function openAgoti() {
-            var win = window.open();
-            if (!win) {
-                alert("Popup blocked! Please allow popups for this site.");
-                return;
-            }
-            var url = "https://yf7kv9jmms-tech.github.io/agoti/";
-            var iframe = win.document.createElement("iframe");
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.src = url;
-            win.document.body.style.margin = "0";
-            win.document.body.style.padding = "0";
-            win.document.body.style.overflow = "hidden";
-            win.document.body.appendChild(iframe);
-        }
+    <p class="footer">If nothing opens, allow popups for this site.</p>
+  </main>
 
-        function openFNAFS() {
-            var win = window.open();
-            if (!win) {
-                alert("Popup blocked! Please allow popups for this site.");
-                return;
-            }
-            var url = "https://yf7kv9jmms-tech.github.io/fnaf/";
-            var iframe = win.document.createElement("iframe");
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.src = url;
-            win.document.body.style.margin = "0";
-            win.document.body.style.padding = "0";
-            win.document.body.style.overflow = "hidden";
-            win.document.body.appendChild(iframe);
-        }
+  <script>
+    // Keep same popup + iframe opening method, now with a loading screen + fade in.
+    function openInIframe(url) {
+      var win = window.open();
+      if (!win) {
+        alert("Popup blocked! Please allow popups for this site.");
+        return;
+      }
 
-        function openMIAMI() {
-            var win = window.open();
-            if (!win) {
-                alert("Popup blocked! Please allow popups for this site.");
-                return;
-            }
-            var url = "https://yf7kv9jmms-tech.github.io/miami/hotline-miami/index.html";
-            var iframe = win.document.createElement("iframe");
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.src = url;
-            win.document.body.style.margin = "0";
-            win.document.body.style.padding = "0";
-            win.document.body.style.overflow = "hidden";
-            win.document.body.appendChild(iframe);
-        }
+      // Build popup shell
+      win.document.open();
+      win.document.write(
+        "<!DOCTYPE html><html><head><title>Loading...</title><meta charset='UTF-8'>" +
+        "<style>" +
+        "html,body{margin:0;height:100%;background:#0d1020;color:#f3f6ff;font-family:Segoe UI,Arial,sans-serif;overflow:hidden;}" +
+        ".loader-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;" +
+        "background:radial-gradient(circle at 30% 20%,#23356b,transparent 55%),linear-gradient(145deg,#0b1020,#1a2140);" +
+        "transition:opacity .45s ease;z-index:10;}" +
+        ".spinner{width:54px;height:54px;border:4px solid rgba(255,255,255,.2);border-top-color:#7cb0ff;border-radius:50%;animation:spin .9s linear infinite;}" +
+        ".txt{opacity:.92;font-size:14px;letter-spacing:.3px;}" +
+        "@keyframes spin{to{transform:rotate(360deg)}}" +
+        "iframe{width:100%;height:100%;border:none;opacity:0;transition:opacity .35s ease;}" +
+        "</style></head><body>" +
+        "<div id='loader' class='loader-wrap'><div class='spinner'></div><div class='txt'>Loading game...</div></div>" +
+        "</body></html>"
+      );
+      win.document.close();
 
-         function openBILLY() {
-            var win = window.open();
-            if (!win) {
-                alert("Popup blocked! Please allow popups for this site.");
-                return;
-            }
-            var url = "https://yf7kv9jmms-tech.github.io/sillybilly/";
-            var iframe = win.document.createElement("iframe");
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.src = url;
-            win.document.body.style.margin = "0";
-            win.document.body.style.padding = "0";
-            win.document.body.style.overflow = "hidden";
-            win.document.body.appendChild(iframe);
-        }
+      var iframe = win.document.createElement("iframe");
+      iframe.src = url;
 
-        function openEAGLER() {
-            var win = window.open();
-            if (!win) {
-                alert("Popup blocked! Please allow popups for this site.");
-                return;
-            }
-            var url = "https://yf7kv9jmms-tech.github.io/eagler/";
-            var iframe = win.document.createElement("iframe");
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.src = url;
-            win.document.body.style.margin = "0";
-            win.document.body.style.padding = "0";
-            win.document.body.style.overflow = "hidden";
-            win.document.body.appendChild(iframe);
+      iframe.onload = function () {
+        var loader = win.document.getElementById("loader");
+        if (loader) {
+          loader.style.opacity = "0";
+          setTimeout(function () {
+            if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+          }, 460);
         }
-        
-    </script> 
+        iframe.style.opacity = "1";
+      };
+
+      win.document.body.style.margin = "0";
+      win.document.body.style.padding = "0";
+      win.document.body.style.overflow = "hidden";
+      win.document.body.appendChild(iframe);
+    }
+
+    function addRipple(event) {
+      if (!event || !event.currentTarget) return;
+      var btn = event.currentTarget;
+      var rect = btn.getBoundingClientRect();
+      var size = Math.max(rect.width, rect.height);
+      var circle = document.createElement("span");
+      circle.className = "ripple";
+      circle.style.width = circle.style.height = size + "px";
+      circle.style.left = event.clientX - rect.left - size / 2 + "px";
+      circle.style.top = event.clientY - rect.top - size / 2 + "px";
+      btn.appendChild(circle);
+      setTimeout(function () { circle.remove(); }, 560);
+    }
+
+    function openFNF(e) {
+      addRipple(e);
+      openInIframe("html5_build/index.html");
+    }
+
+    function openDusttale(e) {
+      addRipple(e);
+      openInIframe("https://yf7kv9jmms-tech.github.io/kvifivivibioeowpd/");
+    }
+
+    function openFNAE(e) {
+      addRipple(e);
+      openInIframe("https://yf7kv9jmms-tech.github.io/lfjkvivospelfo/");
+    }
+
+    function openAgoti(e) {
+      addRipple(e);
+      openInIframe("https://yf7kv9jmms-tech.github.io/agoti/");
+    }
+
+    function openFNAFS(e) {
+      addRipple(e);
+      openInIframe("https://yf7kv9jmms-tech.github.io/fnaf/");
+    }
+
+    function openMIAMI(e) {
+      addRipple(e);
+      openInIframe("https://yf7kv9jmms-tech.github.io/miami/hotline-miami/index.html");
+    }
+
+    function openBILLY(e) {
+      addRipple(e);
+      openInIframe("https://yf7kv9jmms-tech.github.io/silly-billy/");
+    }
+
+    function openEAGLER(e) {
+      addRipple(e);
+      openInIframe("https://yf7kv9jmms-tech.github.io/eagler/");
+    }
+  </script>
 </body>
 </html>
