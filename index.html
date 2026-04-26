@@ -13,6 +13,7 @@
     <button onclick="openFNAFS()">Open FNAFS</button>
     <button onclick="openMIAMI()">Open Hotline Miami</button>
     <button onclick="openBILLY()">Open Silly Billy</button>
+    <button onclick="openEAGLER()">Open Eaglercraft</button>
     
     <script>
         function openFNF() {
@@ -130,6 +131,24 @@
                 return;
             }
             var url = "https://yf7kv9jmms-tech.github.io/sillybilly/";
+            var iframe = win.document.createElement("iframe");
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.border = "none";
+            iframe.src = url;
+            win.document.body.style.margin = "0";
+            win.document.body.style.padding = "0";
+            win.document.body.style.overflow = "hidden";
+            win.document.body.appendChild(iframe);
+        }
+
+        function openEAGLER() {
+            var win = window.open();
+            if (!win) {
+                alert("Popup blocked! Please allow popups for this site.");
+                return;
+            }
+            var url = "https://yf7kv9jmms-tech.github.io/eagler/";
             var iframe = win.document.createElement("iframe");
             iframe.style.width = "100%";
             iframe.style.height = "100%";
