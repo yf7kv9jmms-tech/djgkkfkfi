@@ -29,12 +29,63 @@
     }
 
     /* --- MATRIX BACKGROUND --- */
-    #matrix-canvas {
+    #matrix-bg {
       position: fixed;
       top: 0;
       left: 0;
+      width: 100%;
+      height: 100%;
       z-index: 0;
       opacity: 0.15;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .matrix-column {
+      position: absolute;
+      top: -100px;
+      font-family: 'Fira Code', monospace;
+      font-size: 16px;
+      color: #0F0;
+      white-space: nowrap;
+      animation: fall linear infinite;
+    }
+
+    .matrix-column:nth-child(odd) {
+      animation-duration: 8s;
+    }
+
+    .matrix-column:nth-child(even) {
+      animation-duration: 12s;
+    }
+
+    .matrix-column:nth-child(3n) {
+      animation-duration: 10s;
+    }
+
+    .matrix-column:nth-child(4n) {
+      animation-duration: 15s;
+    }
+
+    .matrix-column:nth-child(5n) {
+      animation-duration: 9s;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(calc(100vh + 100px));
+        opacity: 0;
+      }
     }
 
     /* --- CRT SCANLINE EFFECT --- */
@@ -130,7 +181,7 @@
 </head>
 <body>
 
-  <canvas id="matrix-canvas"></canvas>
+  <div id="matrix-bg"></div>
 
   <!-- MAIN INTERFACE -->
   <main class="app-container" id="main-ui">
@@ -160,31 +211,38 @@
 
   <script>
     /* --- MATRIX RAIN SCRIPT --- */
-    const canvas = document.getElementById('matrix-canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
+    const matrixBg = document.getElementById('matrix-bg');
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~";
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
+    const columnCount = Math.floor(window.innerWidth / 16);
 
-    function drawMatrix() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#0F0';
-      ctx.font = fontSize + 'px monospace';
+    function createMatrixColumn(index) {
+      const column = document.createElement('div');
+      column.className = 'matrix-column';
+      column.style.left = (index * 16) + 'px';
+      column.style.animationDelay = (Math.random() * -20) + 's';
 
-      for (let i = 0; i < drops.length; i++) {
-        const text = characters.charAt(Math.floor(Math.random() * characters.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
+      // Create random text content
+      let text = '';
+      for (let i = 0; i < Math.floor(Math.random() * 20) + 10; i++) {
+        text += characters.charAt(Math.floor(Math.random() * characters.length));
       }
+      column.textContent = text;
+
+      return column;
     }
-    setInterval(drawMatrix, 35);
+
+    // Create columns
+    for (let i = 0; i < columnCount; i++) {
+      matrixBg.appendChild(createMatrixColumn(i));
+    }
+
+    // Update on resize
+    window.addEventListener('resize', () => {
+      const newColumnCount = Math.floor(window.innerWidth / 16);
+      if (newColumnCount !== columnCount) {
+        location.reload(); // Simple reload for resize
+      }
+    });
 
     /* --- CORE FUNCTIONALITY --- */
     function openGame(name, url) {
