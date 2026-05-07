@@ -28,66 +28,6 @@
       overflow: hidden;
     }
 
-    /* --- MATRIX BACKGROUND --- */
-    #matrix-bg {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      opacity: 0.18;
-      overflow: hidden;
-      pointer-events: none;
-    }
-
-    .matrix-column {
-      position: absolute;
-      top: -100%;
-      width: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      font: 16px 'Fira Code', monospace;
-      line-height: 1;
-      animation: fall var(--duration, 11s) linear infinite;
-      will-change: transform, opacity;
-    }
-
-    .matrix-column span {
-      display: block;
-      color: rgba(0, 255, 0, 0.35);
-      text-shadow: 0 0 6px rgba(0, 255, 0, 0.25);
-      opacity: 0.3;
-    }
-
-    .matrix-column span.head {
-      color: #c8ffb4;
-      opacity: 1;
-      text-shadow: 0 0 14px rgba(180, 255, 180, 0.9);
-    }
-
-    .matrix-column span.trail-1 { opacity: 0.8; }
-    .matrix-column span.trail-2 { opacity: 0.65; }
-    .matrix-column span.trail-3 { opacity: 0.5; }
-    .matrix-column span.trail-4 { opacity: 0.35; }
-    .matrix-column span.trail-5 { opacity: 0.22; }
-    .matrix-column span.trail-6 { opacity: 0.12; }
-
-    @keyframes fall {
-      0% {
-        transform: translateY(-100%);
-        opacity: 0;
-      }
-      8% {
-        opacity: 1;
-      }
-      92% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(calc(100vh + 100%));
-        opacity: 0;
-      }
-    }
-
     /* --- CRT SCANLINE EFFECT --- */
     body::before {
       content: " ";
@@ -198,7 +138,7 @@
         <button class="node-btn" onclick="openGame('FNAE', 'https://yf7kv9jmms-tech.github.io/lfjkvivospelfo/')">OPEN_FNAE</button>
         <button class="node-btn" onclick="openGame('Agoti', 'https://yf7kv9jmms-tech.github.io/agoti/')">OPEN_AGOTI</button>
         <button class="node-btn" onclick="openGame('FNAFS', 'https://yf7kv9jmms-tech.github.io/fnaf/')">OPEN_FNAFS</button>
-        <button class="node-btn" onclick="openGame('Hotline Miami', 'https://yf7kv9jmms-tech.github.io/miami/hotline-miami/index.html')">OPEN_MIAMI</button>
+        <button class="node-btn" onclick="openGame('Garcello', 'https://yf7kv9jmms-tech.github.io/garcello2/')">OPEN_GARCELLO</button>
         <button class="node-btn" onclick="openGame('Silly Billy', 'https://yf7kv9jmms-tech.github.io/silly-billy/')">OPEN_SILLYBILLY</button>
         <button class="node-btn" onclick="openGame('Eaglercraft', 'https://yf7kv9jmms-tech.github.io/eagler/')">OPEN_EAGLER</button>
         <button class="node-btn" onclick="openGame('Baldi', 'https://yf7kv9jmms-tech.github.io/baldi2/')">OPEN_BALDI</button>
@@ -210,52 +150,7 @@
     </div>
   </main>
 
-  <script>
-    /* --- MATRIX BACKGROUND --- */
-    const matrixBg = document.getElementById('matrix-bg');
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~";
-    const columnCount = Math.floor(window.innerWidth / 20);
-
-    function randomChar() {
-      return characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-
-    function createMatrixColumn(index) {
-      const column = document.createElement('div');
-      column.className = 'matrix-column';
-      column.style.left = `${index * 20 + Math.random() * 8}px`;
-      column.style.setProperty('--duration', `${8 + Math.random() * 10}s`);
-      column.style.animationDelay = `${Math.random() * -20}s`;
-
-      const length = 24;
-      for (let i = 0; i < length; i++) {
-        const span = document.createElement('span');
-        span.className = `matrix-char ${i === 0 ? 'head' : 'trail-' + Math.min(i, 6)}`;
-        span.textContent = randomChar();
-        column.appendChild(span);
-      }
-
-      return column;
-    }
-
-    for (let i = 0; i < columnCount; i++) {
-      matrixBg.appendChild(createMatrixColumn(i));
-    }
-
-    function refreshMatrixLetters() {
-      document.querySelectorAll('.matrix-column').forEach(column => {
-        column.querySelectorAll('span').forEach(span => {
-          span.textContent = randomChar();
-        });
-      });
-    }
-
-    setInterval(refreshMatrixLetters, 120);
-
-    window.addEventListener('resize', () => {
-      location.reload();
-    });
-
+<script>
     /* --- CORE FUNCTIONALITY --- */
     function openGame(name, url) {
       const win = window.open("about:blank", "_blank");
